@@ -8,6 +8,7 @@ procedure Main is
    ESC_Pin : constant := 0;
    Vertical_Servo_Pin : constant := 1;
    Horizontal_Servo_Pin : constant := 2;
+   Solenoid_Pin : constant := 5;
    Vertical_Max_Angle : constant := 70;
    Vertical_Min_Angle : constant := 25;
    Update_Pin : constant := 11;
@@ -32,15 +33,15 @@ procedure Main is
    Vertical_Angle : Servo_Set_Point := 50;
 
 begin
-   --Set_Analog_Period_Us (20_000);
-   --Go (ESC_Pin, 60);
-   --Delay_Ms(20);
-   --Go (ESC_Pin, 180);
-   --Delay_Ms(20);
-   --Go (ESC_Pin, 60);
+   -- Go (ESC_Pin, 60);
+   -- Delay_Ms(20);
+   -- Go (ESC_Pin, 180);
+   -- Delay_Ms(20);
+   -- Go (ESC_Pin, 60);
    Go (Vertical_Servo_Pin, Vertical_Angle);
    Delay_Ms(500);
    Stop (Vertical_Servo_Pin);
+   MicroBit.IOs.Set (Solenoid_Pin, False);
 
    --  Loop forever
    loop
@@ -97,7 +98,7 @@ begin
 
          if Armed then
             -- Update display and actuators
-            --Go (ESC_Pin, 180);
+            -- Go (ESC_Pin, 180);
 
             if Move_X < 0 then
                Move_Left;
@@ -129,14 +130,18 @@ begin
 
             if Firing then
                Fire;
+               MicroBit.IOs.Set (Solenoid_Pin, True);
+               Delay_Ms(50);
+               MicroBit.IOs.Set (Solenoid_Pin, False);
+               Delay_Ms(50);
             end if;
-         --else
-            --Go (ESC_Pin, 50);
+         else
+            -- Go (ESC_Pin, 50);
          end if;
       else
          Can_Be_Armed := True;
          Stop (Horizontal_Servo_Pin);
-         --Stop (Vertical_Servo_Pin);
+         Stop (Vertical_Servo_Pin);
       end if;
 
       Delay_Ms(25);
