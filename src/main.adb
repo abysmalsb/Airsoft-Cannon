@@ -33,12 +33,8 @@ procedure Main is
    Vertical_Angle : Servo_Set_Point := 50;
 
 begin
-   -- Go (ESC_Pin, 60);
-   -- Delay_Ms(20);
-   -- Go (ESC_Pin, 180);
-   -- Delay_Ms(20);
-   -- Go (ESC_Pin, 60);
-   Go (Vertical_Servo_Pin, Vertical_Angle);
+   -- Go (ESC_Pin, 50);
+   -- Go (Vertical_Servo_Pin, Vertical_Angle);
    Delay_Ms(500);
    Stop (Vertical_Servo_Pin);
    MicroBit.IOs.Set (Solenoid_Pin, False);
@@ -98,7 +94,7 @@ begin
 
          if Armed then
             -- Update display and actuators
-            -- Go (ESC_Pin, 180);
+            -- Go (ESC_Pin, 130);
 
             if Move_X < 0 then
                Move_Left;
