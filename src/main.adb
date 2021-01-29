@@ -1,10 +1,15 @@
-with MicroBit.IOs;
+with MicroBit.IOs; use MicroBit.IOs;
+with MicroBit.Servos; use MicroBit.Servos;
 with MicroBit.Time; use MicroBit.Time;
 with MicroBit.Display; use MicroBit.Display;
 with MicroBit.Display.Cannon; use MicroBit.Display.Cannon;
 
 procedure Main is
-
+   ESC_Pin : constant := 0;
+   Vertical_Servo_Pin : constant := 1;
+   Horizontal_Servo_Pin : constant := 2;
+   Vertical_Max_Angle : constant := 70;
+   Vertical_Min_Angle : constant := 25;
    Update_Pin : constant := 11;
    Left_Pin : constant := 13;
    Up_Pin : constant := 14;
@@ -24,8 +29,19 @@ procedure Main is
    Firing : Boolean := False;
    Move_X : Integer := 0;
    Move_Y : Integer := 0;
+   Vertical_Angle : Servo_Set_Point := 50;
 
 begin
+   --Set_Analog_Period_Us (20_000);
+   --Go (ESC_Pin, 60);
+   --Delay_Ms(20);
+   --Go (ESC_Pin, 180);
+   --Delay_Ms(20);
+   --Go (ESC_Pin, 60);
+   Go (Vertical_Servo_Pin, Vertical_Angle);
+   Delay_Ms(500);
+   Stop (Vertical_Servo_Pin);
+
    --  Loop forever
    loop
       Clear;
@@ -40,27 +56,8 @@ begin
          Not_Armed;
       end if;
 
+
       if Update_State then
-         if Armed then
-            -- Update actuators and display
-            if Move_X < 0 then
-               Move_Left;
-            end if;
-            if Move_Y > 0 then
-               Move_Up;
-            end if;
-            if Move_Y < 0 then
-               Move_Down;
-            end if;
-            if Move_X > 0 then
-               Move_Right;
-            end if;
-            if Firing then
-               Fire;
-            end if;
-
-         end if;
-
          Firing := False;
          X_Updated := False;
          Y_Updated := False;
@@ -90,20 +87,58 @@ begin
 
             Armed := not Armed;
             Can_Be_Armed := False;
-
          elsif (Move_X = 0 and then
                 Move_Y = 0 and then
                 X_Updated and then
-                not Y_Updated) then
+                  not Y_Updated) then
 
             Firing := True;
+         end if;
 
+         if Armed then
+            -- Update display and actuators
+            --Go (ESC_Pin, 180);
+
+            if Move_X < 0 then
+               Move_Left;
+               Go (Horizontal_Servo_Pin, 90);
+            elsif Move_X > 0 then
+               Move_Right;
+               Go (Horizontal_Servo_Pin, 86);
+            else
+               Stop (Horizontal_Servo_Pin);
+            end if;
+
+            if Move_Y < 0 then
+               Move_Down;
+               Vertical_Angle := Vertical_Angle - 1;
+               if Vertical_Angle < Vertical_Min_Angle then
+                  Vertical_Angle := Vertical_Min_Angle;
+               end if;
+               Go (Vertical_Servo_Pin, Vertical_Angle);
+            elsif Move_Y > 0 then
+               Move_Up;
+               Vertical_Angle := Vertical_Angle + 1;
+               if Vertical_Angle > Vertical_Max_Angle then
+                  Vertical_Angle := Vertical_Max_Angle;
+               end if;
+               Go (Vertical_Servo_Pin, Vertical_Angle);
+            else
+               Stop (Vertical_Servo_Pin);
+            end if;
+
+            if Firing then
+               Fire;
+            end if;
+         --else
+            --Go (ESC_Pin, 50);
          end if;
       else
          Can_Be_Armed := True;
+         Stop (Horizontal_Servo_Pin);
+         --Stop (Vertical_Servo_Pin);
       end if;
 
-      Delay_Ms(5);
+      Delay_Ms(25);
    end loop;
-
 end Main;
