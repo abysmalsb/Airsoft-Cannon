@@ -1,3 +1,17 @@
+--------------------------------------------------------------------
+--
+-- This code needs to be flashed on a BBC micro:bit and it
+-- controls an RC airsift turret. More info:
+-- https://www.hackster.io/Abysmal/rc-airsoft-turret-5a495e
+--
+-- This project is made for "Make with Ada"
+-- contest on hackster.io. More info:
+-- https://www.hackster.io/contests/adacore3
+--
+-- author: Balázs Simon
+--
+--------------------------------------------------------------------
+
 with MicroBit.IOs; use MicroBit.IOs;
 with MicroBit.Servos; use MicroBit.Servos;
 with MicroBit.Time; use MicroBit.Time;
@@ -33,13 +47,17 @@ procedure Main is
    Vertical_Angle : Servo_Set_Point := 50;
 
 begin
-   -- Go (ESC_Pin, 50);
-   -- Go (Vertical_Servo_Pin, Vertical_Angle);
+   -- Setting up initial state and resetting components to default state.
+   Go (ESC_Pin, 130);
+   Delay_Ms(25);
+   Go (ESC_Pin, 50);
+   Go (Vertical_Servo_Pin, Vertical_Angle);
    Delay_Ms(500);
    Stop (Vertical_Servo_Pin);
    MicroBit.IOs.Set (Solenoid_Pin, False);
 
-   --  Loop forever
+   -- State machine loop. Loop forever. You can find the state machine diagram
+   -- on the projects's page at the software section.
    loop
       Clear;
 
@@ -94,7 +112,7 @@ begin
 
          if Armed then
             -- Update display and actuators
-            -- Go (ESC_Pin, 130);
+            Go (ESC_Pin, 130);
 
             if Move_X < 0 then
                Move_Left;
@@ -132,7 +150,7 @@ begin
                Delay_Ms(50);
             end if;
          else
-            -- Go (ESC_Pin, 50);
+            Go (ESC_Pin, 50);
          end if;
       else
          Can_Be_Armed := True;
